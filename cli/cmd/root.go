@@ -2,7 +2,9 @@ package cmd
 
 import (
 	"errors"
+	"fmt"
 	"io"
+	"log"
 	"os"
 	"text/tabwriter"
 
@@ -69,6 +71,7 @@ Use "{{.CommandPath}} [command] --help" for more information about a command.{{e
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute(stdin io.Reader, stdout io.Writer, stderr io.Writer) error {
+	fmt.Println("-- start --")
 	w := tabwriter.NewWriter(stdout, minWidth, tabWidth, padding, padChar, tabwriter.TabIndent)
 
 	// get api client and app ID after flags are parsed
@@ -96,6 +99,7 @@ func Execute(stdin io.Reader, stdout io.Writer, stderr io.Writer) error {
 	RootCmd.SetUsageTemplate(rootCmdUsageTmpl)
 
 	RootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
+		log.Println("-- here --")
 		if apiToken == "" {
 			apiToken = os.Getenv("REPLICATED_API_TOKEN")
 			if apiToken == "" {
@@ -107,7 +111,12 @@ func Execute(stdin io.Reader, stdout io.Writer, stderr io.Writer) error {
 
 		if appSlugOrID == "" {
 			appSlugOrID = os.Getenv("REPLICATED_APP")
+			if appSlugOrID == "" {
+				return errors.New("App not provided")
+			}
 		}
+
+		fmt.Printf("-- appSlugOrID --\n %v\n", appSlugOrID)
 
 		app, err := api.GetApp(appSlugOrID)
 		if err != nil {

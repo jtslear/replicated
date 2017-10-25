@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"fmt"
+
 	"github.com/replicatedhq/replicated/cli/print"
 	"github.com/spf13/cobra"
 )
@@ -17,6 +19,7 @@ func init() {
 }
 
 func (r *runners) channelList(cmd *cobra.Command, args []string) error {
+	fmt.Printf("r.appID: %v\n", r.appID)
 	channels, err := r.api.ListChannels(r.appID)
 	if err != nil {
 		return err
